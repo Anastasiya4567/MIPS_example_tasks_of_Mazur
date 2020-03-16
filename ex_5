@@ -1,0 +1,52 @@
+#Polecenie:
+#Zliczanie liczb dziesiętnych w łańcuchu	
+		.data
+prompt: 	.asciiz "Enter array:\n"
+		.align 2
+buf:		.space 100
+		.text
+		.globl main
+main:
+		li $v0, 4
+		la $a0, prompt
+		syscall    #write message 
+		li $v0, 8
+		la $a0, buf
+		li $a1, 100
+		syscall
+		la $t0, buf
+		
+		#$t0 - bufer
+		#$t1 - main counter
+		#$t2, $t3 - '0', '9'
+		#$t4, $t5 - for help
+		
+		li $t2, '0'
+		li $t3, '9'
+		li $t5, 0						
+loop:
+		lb $t4, ($t0)
+		beqz $t4, end
+		blt $t4, $t2, jump
+		bgt $t4, $t3, jump
+		j number		
+jump:
+		addi $t0, $t0, 1 
+		j loop
+number:
+		addi $t0, $t0, 1 
+		lb $t4, ($t0)
+		beqz $t4, end
+		blt $t4, $t2, adding
+		bgt $t4, $t3, adding
+		j number
+adding:
+		addi $t0, $t0, 1 
+		addi $t5, $t5, 1
+		j, loop
+end:
+		li $v0, 1
+		la $a0, ($t5)
+		syscall
+		li $v0, 10
+		syscall
