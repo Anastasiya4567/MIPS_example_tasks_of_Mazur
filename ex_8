@@ -1,0 +1,55 @@
+#Polecenie:
+#Zastępowanie co trzeciej małej litery przez odpowiadającą jej wielką
+	.data
+prompt: .asciiz "Enter string:\n"
+	.align 2
+buf:	.space 100
+	.text
+	.globl main
+main:
+	li $v0, 4
+	la $a0, prompt
+	syscall
+	li $v0, 8
+	la $a0, buf
+	li $a1, 100
+	syscall
+	li $t0, 'a'
+	li $t1, 'z'
+
+	la $t3, buf
+	lb $t4, ($t3)
+	beqz $t4, end
+	li $t7, 0x20
+	
+	#$t0 - 'a'
+	#$t1 - 'z'
+	#$t3 - iterator on bufer
+	#$t4 - for help
+	#$t5 - counter
+	#$t7 - difference ('A'-'a')
+	
+	li $t5, 0
+	li $t6, 3
+loop:
+	lb $t4, ($t3)
+	beqz $t4, end
+	blt $t4, $t0, jump
+	bgt $t4, $t1, jump
+	addi $t5, $t5, 1
+	beq $t5, $t6, up
+jump:
+	addi $t3, $t3, 1
+	j loop
+up:
+	sub $t4, $t4, $t7
+	sb $t4, ($t3)
+	li $t5, 0
+	addi $t3, $t3, 1
+	j loop	
+end:
+	li $v0, 4
+	la $a0, buf
+	syscall
+	li $v0, 10
+	syscall
