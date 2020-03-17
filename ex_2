@@ -1,0 +1,73 @@
+#Polecenie:
+#Wypisywanie najdłuższego ciągu cyfr znalezionego  w łańcuchu wejściowym
+		.data
+prompt: 	.asciiz "Enter array:\n"
+result:		.asciiz "Result:\n"
+		.align 2
+buf:		.space 100
+		.text
+		.globl main
+main:
+		li $v0, 4
+		la $a0, prompt
+		syscall    #write message 
+		li $v0, 8
+		la $a0, buf
+		li $a1, 100
+		syscall
+		
+		#$t0 - bufer
+		#$t1 - counter
+		#$t2, $t3 - '0', '9'
+		#$t4, $t5 - for help
+		#$t6 - iterator on sequence
+		#$t7 - the longest sequence
+		#$s0 - '/0'
+		
+		la $t0, buf
+		la $t6, buf
+		li $t1, 0 		
+		li $t2, '0'
+		li $t3, '9'
+		li $t7, 0						
+loop:
+		lb $t4, ($t0)
+		beqz $t4, end
+		ori $t5, $t0, 0
+		addi $t0, $t0, 1 
+		blt $t4, $t2, loop
+		bgt $t4, $t3, loop
+		j number	
+number:
+		addi $t1, $t1, 1		
+		lb $t4, ($t0)
+		beqz $t4, end
+		blt $t4, $t2, not_num
+		bgt $t4, $t3, not_num	
+		addi $t0, $t0, 1 			
+		j number
+not_num:
+		bgt $t1, $t7, iter
+		addi $t0, $t0, 1
+		li $t1, 0
+		j loop
+iter:
+		ori $t7, $t1, 0
+		li $t1, 0
+		ori $t6, $t5, 0
+		j loop
+end:	
+		add $t5, $t6, $t7
+		li $s0, 0
+		sb $s0, ($t5)
+	
+		li $v0, 4
+		la $a0, result
+		syscall
+		
+		li $v0, 4
+		la $a0, ($t6)
+		syscall
+		
+		li $v0, 10
+		syscall
